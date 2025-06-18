@@ -25,16 +25,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 header.style.transform = 'translateY(0)';
             }
         } else {
-            // Mobile: keep header static and visible
+            // Mobile: keep header ALWAYS visible and static - no hiding/showing
             header.style.background = 'rgba(10, 10, 10, 0.98)';
             header.style.boxShadow = '0 4px 32px rgba(0, 0, 0, 0.3)';
             header.style.transform = 'translateY(0)';
+            header.style.position = 'fixed';
+            header.style.top = '0';
         }
         
         lastScrollY = currentScrollY;
     }
     
-    window.addEventListener('scroll', updateHeader);
+    // Only add scroll listener on desktop - mobile header stays always visible
+    if (window.innerWidth > 768) {
+        window.addEventListener('scroll', updateHeader);
+    } else {
+        // Initialize mobile header as always visible
+        header.style.background = 'rgba(10, 10, 10, 0.98)';
+        header.style.boxShadow = '0 4px 32px rgba(0, 0, 0, 0.3)';
+        header.style.transform = 'translateY(0)';
+        header.style.position = 'fixed';
+        header.style.top = '0';
+    }
     
     // Smooth scrolling for navigation links
     const navLinks = document.querySelectorAll('.nav-link[href^="#"]');
@@ -272,6 +284,48 @@ document.addEventListener('DOMContentLoaded', function() {
             statsObserver.observe(stat);
         });
     }
+    
+    // Ensure header and WhatsApp are always visible on mobile
+    function ensureMobileElementsVisible() {
+        if (window.innerWidth <= 768) {
+            // Always show header
+            const header = document.querySelector('.header');
+            if (header) {
+                header.style.display = 'block';
+                header.style.visibility = 'visible';
+                header.style.opacity = '1';
+                header.style.transform = 'translateY(0)';
+                header.style.position = 'fixed';
+                header.style.top = '0';
+            }
+            
+            // Always show hamburger
+            const hamburger = document.querySelector('.hamburger');
+            if (hamburger) {
+                hamburger.style.display = 'flex';
+                hamburger.style.visibility = 'visible';
+                hamburger.style.opacity = '1';
+            }
+            
+            // Always show WhatsApp button
+            const whatsappFloat = document.querySelector('.whatsapp-float');
+            const whatsappBtn = document.querySelector('.whatsapp-btn');
+            if (whatsappFloat) {
+                whatsappFloat.style.display = 'block';
+                whatsappFloat.style.visibility = 'visible';
+                whatsappFloat.style.opacity = '1';
+            }
+            if (whatsappBtn) {
+                whatsappBtn.style.display = 'flex';
+                whatsappBtn.style.visibility = 'visible';
+                whatsappBtn.style.opacity = '1';
+            }
+        }
+    }
+    
+    // Call on load and resize
+    ensureMobileElementsVisible();
+    window.addEventListener('resize', ensureMobileElementsVisible);
     
     function animateCounter(element) {
         const target = element.textContent;

@@ -66,6 +66,17 @@ body {
     transition: var(--transition-normal);
 }
 
+/* Mobile header - always visible */
+@media (max-width: 768px) {
+    .header {
+        position: fixed !important;
+        top: 0 !important;
+        transform: translateY(0) !important;
+        background: rgba(10, 10, 10, 0.98) !important;
+        box-shadow: 0 4px 32px rgba(0, 0, 0, 0.3) !important;
+    }
+}
+
 .nav {
     padding: 16px 0;
 }
@@ -967,13 +978,16 @@ body {
     }
     
     .hamburger {
-        display: flex;
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
     }
     
     .hero-layout {
         grid-template-columns: 1fr;
-        gap: 40px;
+        gap: 30px;
         text-align: center;
+        margin-bottom: 20px;
     }
     
     .hero-text {
@@ -988,6 +1002,11 @@ body {
         flex-direction: column;
         align-items: center;
         gap: 12px;
+    }
+    
+    .hero-content {
+        padding-top: 120px !important;
+        padding-bottom: 60px;
     }
     
     .features-grid {
@@ -1055,7 +1074,8 @@ body {
     }
     
     .hero-content {
-        padding: 60px 0;
+        padding-top: 100px !important;
+        padding-bottom: 40px;
     }
     
     .btn-large {
@@ -1118,15 +1138,22 @@ body {
 
 /* WhatsApp button pulse animation removed to prevent issues */
 
-/* Responsive WhatsApp */
+/* Responsive WhatsApp - always visible on mobile */
 @media (max-width: 768px) {
     .whatsapp-float {
         bottom: 20px;
         left: 20px;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        z-index: 1000;
     }
     
     .whatsapp-btn {
         width: 55px;
         height: 55px;
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
     }
 }
