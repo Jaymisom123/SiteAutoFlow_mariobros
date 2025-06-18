@@ -55,11 +55,31 @@ document.addEventListener('DOMContentLoaded', function() {
     const navMenu = document.querySelector('.nav-menu');
     const navActions = document.querySelector('.nav-actions');
     
+    function closeMenu() {
+        hamburger.classList.remove('active');
+        navMenu.classList.remove('active');
+        navActions.classList.remove('active');
+        document.body.classList.remove('menu-open');
+        
+        // Reset hamburger animation
+        const spans = hamburger.querySelectorAll('span');
+        spans[0].style.transform = 'none';
+        spans[1].style.opacity = '1';
+        spans[2].style.transform = 'none';
+    }
+    
     if (hamburger) {
         hamburger.addEventListener('click', function() {
             hamburger.classList.toggle('active');
             navMenu.classList.toggle('active');
             navActions.classList.toggle('active');
+            
+            // Toggle body scroll lock
+            if (hamburger.classList.contains('active')) {
+                document.body.classList.add('menu-open');
+            } else {
+                document.body.classList.remove('menu-open');
+            }
             
             // Animate hamburger
             const spans = hamburger.querySelectorAll('span');
@@ -71,6 +91,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 spans[0].style.transform = 'none';
                 spans[1].style.opacity = '1';
                 spans[2].style.transform = 'none';
+            }
+        });
+        
+        // Close menu when clicking on a nav link
+        const mobileNavLinks = document.querySelectorAll('.nav-link');
+        mobileNavLinks.forEach(link => {
+            link.addEventListener('click', closeMenu);
+        });
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!hamburger.contains(e.target) && 
+                !navMenu.contains(e.target) && 
+                !navActions.contains(e.target) &&
+                hamburger.classList.contains('active')) {
+                closeMenu();
             }
         });
     }
@@ -118,6 +154,7 @@ document.addEventListener('DOMContentLoaded', function() {
             padding: 24px;
             backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--border-color);
+            z-index: 999;
         }
         
         .nav-menu.active {
@@ -127,6 +164,18 @@ document.addEventListener('DOMContentLoaded', function() {
         .nav-actions.active {
             gap: 12px;
             margin-top: 16px;
+        }
+        
+        body.menu-open {
+            overflow: hidden;
+        }
+        
+        @media (max-width: 768px) {
+            body.menu-open .nav-menu.active,
+            body.menu-open .nav-actions.active {
+                position: fixed !important;
+                z-index: 999 !important;
+            }
         }
         
         @media (min-width: 769px) {
@@ -139,6 +188,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 border: none !important;
                 padding: 0 !important;
                 margin-top: 0 !important;
+            }
+            
+            body.menu-open {
+                overflow: auto;
             }
         }
     `;
