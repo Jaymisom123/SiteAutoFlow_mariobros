@@ -45,15 +45,10 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateHeader() {
         const currentScrollY = window.scrollY;
         
+        // Header sempre preto em todas as situações
+        header.style.background = '#000000';
+        
         if (window.innerWidth > 768) {
-            if (currentScrollY > 100) {
-                header.style.background = 'rgba(10, 10, 10, 0.98)';
-                header.style.backdropFilter = 'blur(20px)';
-            } else {
-                header.style.background = 'transparent';
-                header.style.backdropFilter = 'none';
-            }
-            
             // Ocultar/mostrar header no scroll (apenas desktop)
             if (currentScrollY > lastScrollY && currentScrollY > 100) {
                 header.style.transform = 'translateY(-100%)';
@@ -62,9 +57,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } else {
             // Mobile: cabeçalho sempre visível
-            header.style.background = 'rgba(10, 10, 10, 0.98)';
             header.style.transform = 'translateY(0)';
-            header.style.backdropFilter = 'blur(20px)';
         }
         
         lastScrollY = currentScrollY;
