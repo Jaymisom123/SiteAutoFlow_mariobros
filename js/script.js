@@ -1,192 +1,138 @@
-// AutoFlow Landing Page - Interactive Features
+// AutoFlow Landing Page - Recursos Interativos
 document.addEventListener('DOMContentLoaded', function() {
     
-    // Header scroll effect
+    // Header responsivo profissional
     const header = document.querySelector('.header');
-    let lastScrollY = window.scrollY;
+    const hamburger = document.querySelector('.hamburger');
+    const navMenu = document.querySelector('.nav-menu');
+    
+    // Mobile menu toggle
+    hamburger?.addEventListener('click', () => {
+        hamburger.classList.toggle('active');
+        navMenu.classList.toggle('active');
+        
+        // Prevenir scroll do body quando menu estiver aberto
+        if (navMenu.classList.contains('active')) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+    });
+    
+    // Fechar menu ao clicar em link
+    const navLinks = document.querySelectorAll('.nav-link');
+    navLinks.forEach(link => {
+        link.addEventListener('click', () => {
+            hamburger?.classList.remove('active');
+            navMenu?.classList.remove('active');
+            document.body.style.overflow = '';
+        });
+    });
+    
+    // Fechar menu ao redimensionar para desktop
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 768) {
+            hamburger?.classList.remove('active');
+            navMenu?.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    });
+    
+    // Header scroll effect apenas no desktop
+    let lastScrollY = 0;
+    let ticking = false;
     
     function updateHeader() {
         const currentScrollY = window.scrollY;
         
-        // Only apply header effects on desktop to prevent mobile scroll issues
         if (window.innerWidth > 768) {
             if (currentScrollY > 100) {
                 header.style.background = 'rgba(10, 10, 10, 0.98)';
-                header.style.boxShadow = '0 4px 32px rgba(0, 0, 0, 0.3)';
+                header.style.backdropFilter = 'blur(20px)';
             } else {
-                header.style.background = 'rgba(10, 10, 10, 0.95)';
-                header.style.boxShadow = 'none';
+                header.style.background = 'transparent';
+                header.style.backdropFilter = 'none';
             }
             
-            // Hide/show header on scroll (desktop only)
+            // Ocultar/mostrar header no scroll (apenas desktop)
             if (currentScrollY > lastScrollY && currentScrollY > 100) {
                 header.style.transform = 'translateY(-100%)';
             } else {
                 header.style.transform = 'translateY(0)';
             }
         } else {
-            // Mobile: keep header ALWAYS visible and static - no hiding/showing
+            // Mobile: cabeçalho sempre visível
             header.style.background = 'rgba(10, 10, 10, 0.98)';
-            header.style.boxShadow = '0 4px 32px rgba(0, 0, 0, 0.3)';
             header.style.transform = 'translateY(0)';
-            header.style.position = 'fixed';
-            header.style.top = '0';
+            header.style.backdropFilter = 'blur(20px)';
         }
         
         lastScrollY = currentScrollY;
+        ticking = false;
     }
     
-    // Only add scroll listener on desktop - mobile header stays always visible
-    if (window.innerWidth > 768) {
-        window.addEventListener('scroll', updateHeader);
-    } else {
-        // Initialize mobile header as always visible
-        header.style.background = 'rgba(10, 10, 10, 0.98)';
-        header.style.boxShadow = '0 4px 32px rgba(0, 0, 0, 0.3)';
-        header.style.transform = 'translateY(0)';
-        header.style.position = 'fixed';
-        header.style.top = '0';
+    // Throttled scroll listener para performance
+    function requestTick() {
+        if (!ticking) {
+            requestAnimationFrame(updateHeader);
+            ticking = true;
+        }
     }
     
-    // Smooth scrolling for navigation links
-    const navLinks = document.querySelectorAll('.nav-link[href^="#"]');
+    window.addEventListener('scroll', requestTick, { passive: true });
     
-    navLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
+    // Rolagem suave para links de navegação
+    const navLinksWithHref = document.querySelectorAll('.nav-link[href^="#"]');
+    
+    navLinksWithHref.forEach(link => {
+        link.addEventListener('click', (e) => {
             e.preventDefault();
-            
-            const targetId = this.getAttribute('href');
-            const targetElement = document.querySelector(targetId);
+            const targetId = link.getAttribute('href').substring(1);
+            const targetElement = document.getElementById(targetId);
             
             if (targetElement) {
                 const headerHeight = header.offsetHeight;
                 const targetPosition = targetElement.offsetTop - headerHeight;
                 
-                window.scrollTo({
-                    top: targetPosition,
-                    behavior: 'smooth'
-                });
+                // Apenas rolagem suave no desktop
+                if (window.innerWidth > 768) {
+                    window.scrollTo({
+                        top: targetPosition,
+                        behavior: 'smooth'
+                    });
+                } else {
+                    window.scrollTo(0, targetPosition);
+                }
             }
         });
     });
     
-    // Mobile menu toggle
-    const hamburger = document.querySelector('.hamburger');
-    const navMenu = document.querySelector('.nav-menu');
-    const navActions = document.querySelector('.nav-actions');
-    
-    function closeMenu() {
-        hamburger.classList.remove('active');
-        
-        // Start closing animation
-        navMenu.classList.remove('show');
-        navActions.classList.remove('show');
-        document.body.classList.remove('menu-open');
-        
-        // Remove active class after animation completes
-        setTimeout(() => {
-            navMenu.classList.remove('active');
-            navActions.classList.remove('active');
-        }, 800);
-        
-        // Reset hamburger animation
-        const spans = hamburger.querySelectorAll('span');
-        spans[0].style.transform = 'none';
-        spans[1].style.opacity = '1';
-        spans[2].style.transform = 'none';
-    }
-    
-    if (hamburger) {
-        hamburger.addEventListener('click', function() {
-            hamburger.classList.toggle('active');
-            
-            if (hamburger.classList.contains('active')) {
-                // Opening menu
-                navMenu.classList.add('active');
-                navActions.classList.add('active');
-                document.body.classList.add('menu-open');
-                
-                // Add show class after a small delay for smooth animation
-                setTimeout(() => {
-                    navMenu.classList.add('show');
-                    navActions.classList.add('show');
-                }, 10);
-            } else {
-                // Closing menu
-                navMenu.classList.remove('show');
-                navActions.classList.remove('show');
-                document.body.classList.remove('menu-open');
-                
-                // Remove active class after animation completes
-                setTimeout(() => {
-                    navMenu.classList.remove('active');
-                    navActions.classList.remove('active');
-                }, 800);
-            }
-            
-            // Animate hamburger
-            const spans = hamburger.querySelectorAll('span');
-            if (hamburger.classList.contains('active')) {
-                spans[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
-                spans[1].style.opacity = '0';
-                spans[2].style.transform = 'rotate(-45deg) translate(7px, -6px)';
-            } else {
-                spans[0].style.transform = 'none';
-                spans[1].style.opacity = '1';
-                spans[2].style.transform = 'none';
-            }
-        });
-        
-        // Close menu when clicking on a nav link
-        const mobileNavLinks = document.querySelectorAll('.nav-link');
-        mobileNavLinks.forEach(link => {
-            link.addEventListener('click', function(e) {
-                // Only close menu, prevent scroll behavior on mobile
-                if (window.innerWidth <= 768) {
-                    e.preventDefault();
-                    closeMenu();
-                } else {
-                    closeMenu();
-                }
-            });
-        });
-        
-        // Close menu when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!hamburger.contains(e.target) && 
-                !navMenu.contains(e.target) && 
-                !navActions.contains(e.target) &&
-                hamburger.classList.contains('active')) {
-                closeMenu();
-            }
-        });
-    }
-    
-    // Intersection Observer for animations
+    // Intersection Observer para animações
     const observerOptions = {
         threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
+        rootMargin: '0px 0px -100px 0px'
     };
     
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('animate-in');
+                observer.unobserve(entry.target);
             }
         });
     }, observerOptions);
     
-    // Elements to animate (disabled on mobile to prevent auto-scroll)
+    // Elementos para animar (desabilitado no mobile para prevenir auto-scroll)
     if (window.innerWidth > 768) {
         const animateElements = document.querySelectorAll('.feature-card, .testimonial-card, .showcase-text, .showcase-image');
         animateElements.forEach(el => {
             el.style.opacity = '0';
             el.style.transform = 'translateY(30px)';
-            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            el.style.transition = 'all 0.8s ease';
             observer.observe(el);
         });
     } else {
-        // On mobile, show elements immediately without animation
+        // No mobile, mostrar elementos imediatamente sem animação
         const animateElements = document.querySelectorAll('.feature-card, .testimonial-card, .showcase-text, .showcase-image');
         animateElements.forEach(el => {
             el.style.opacity = '1';
@@ -194,7 +140,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Add CSS for animation
+    // Adicionar CSS para animação
     const style = document.createElement('style');
     style.textContent = `
         .animate-in {
@@ -202,73 +148,28 @@ document.addEventListener('DOMContentLoaded', function() {
             transform: translateY(0) !important;
         }
         
-        .nav-menu.active,
-        .nav-actions.active {
-            display: flex !important;
-            position: fixed;
-            top: 80px;
-            left: 0;
-            width: 100%;
-            background: rgba(10, 10, 10, 0.98);
-            flex-direction: column;
-            padding: 24px;
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border-color);
-            z-index: 999;
-            transform: translateY(-100%);
-            opacity: 0;
-            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .nav-menu.active.show,
-        .nav-actions.active.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-        
-        .nav-menu.active {
-            gap: 16px;
-        }
-        
-        .nav-actions.active {
-            gap: 12px;
-            margin-top: 16px;
-        }
-        
-        body.menu-open {
-            overflow: hidden;
-        }
-        
-        @media (max-width: 768px) {
-            body.menu-open .nav-menu.active,
-            body.menu-open .nav-actions.active {
-                position: fixed !important;
-                z-index: 999 !important;
-            }
-        }
-        
+        /* CSS para animações suaves */
         @media (min-width: 769px) {
-            .nav-menu.active,
-            .nav-actions.active {
-                position: static !important;
-                flex-direction: row !important;
-                background: none !important;
-                backdrop-filter: none !important;
-                border: none !important;
-                padding: 0 !important;
-                margin-top: 0 !important;
+            .nav-menu,
+            .nav-actions {
+                display: flex !important;
             }
             
-            body.menu-open {
-                overflow: auto;
+            .hamburger {
+                display: none !important;
+            }
+            
+            .mobile-sidebar,
+            .sidebar-overlay {
+                display: none !important;
             }
         }
     `;
     document.head.appendChild(style);
     
-    // Parallax effect removed to prevent scroll issues
+    // Efeito parallax removido para prevenir problemas de scroll
     
-    // Statistics counter animation (disabled on mobile to prevent issues)
+    // Animação de contador de estatísticas (desabilitado no mobile para prevenir problemas)
     if (window.innerWidth > 768) {
         const stats = document.querySelectorAll('.stat-number');
         const statsObserver = new IntersectionObserver((entries) => {
@@ -285,47 +186,78 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Ensure header and WhatsApp are always visible on mobile
-    function ensureMobileElementsVisible() {
-        if (window.innerWidth <= 768) {
-            // Always show header
-            const header = document.querySelector('.header');
-            if (header) {
-                header.style.display = 'block';
-                header.style.visibility = 'visible';
-                header.style.opacity = '1';
-                header.style.transform = 'translateY(0)';
-                header.style.position = 'fixed';
-                header.style.top = '0';
+    // Otimizações responsivas
+    function handleResponsiveOptimizations() {
+        const isMobile = window.innerWidth <= 768;
+        const isTablet = window.innerWidth <= 1024 && window.innerWidth > 768;
+        
+        // Otimizações para mobile
+        if (isMobile) {
+            // Desabilitar parallax e animações pesadas
+            const video = document.querySelector('.hero-video video');
+            if (video) {
+                video.style.transform = 'none';
             }
             
-            // Always show hamburger
-            const hamburger = document.querySelector('.hamburger');
-            if (hamburger) {
-                hamburger.style.display = 'flex';
-                hamburger.style.visibility = 'visible';
-                hamburger.style.opacity = '1';
-            }
-            
-            // Always show WhatsApp button
-            const whatsappFloat = document.querySelector('.whatsapp-float');
-            const whatsappBtn = document.querySelector('.whatsapp-btn');
-            if (whatsappFloat) {
-                whatsappFloat.style.display = 'block';
-                whatsappFloat.style.visibility = 'visible';
-                whatsappFloat.style.opacity = '1';
-            }
-            if (whatsappBtn) {
-                whatsappBtn.style.display = 'flex';
-                whatsappBtn.style.visibility = 'visible';
-                whatsappBtn.style.opacity = '1';
+            // Otimizar imagens lazy loading
+            const images = document.querySelectorAll('img');
+            images.forEach(img => {
+                if (!img.loading) {
+                    img.loading = 'lazy';
+                }
+            });
+        }
+        
+        // Ajustes para tablet
+        if (isTablet) {
+            const features = document.querySelector('.features-grid');
+            if (features) {
+                features.style.gap = '2rem';
             }
         }
     }
     
-    // Call on load and resize
-    ensureMobileElementsVisible();
-    window.addEventListener('resize', ensureMobileElementsVisible);
+    // Otimização de toque
+    function optimizeForTouch() {
+        if ('ontouchstart' in window) {
+            document.body.classList.add('touch-device');
+            
+            // Melhorar interações touch
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(btn => {
+                btn.addEventListener('touchstart', function() {
+                    this.classList.add('touch-active');
+                }, { passive: true });
+                
+                btn.addEventListener('touchend', function() {
+                    setTimeout(() => {
+                        this.classList.remove('touch-active');
+                    }, 150);
+                }, { passive: true });
+            });
+        }
+    }
+    
+    // Correção de altura do viewport para mobile
+    function setVH() {
+        const vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
+    }
+    
+    // Chamar funções de otimização
+    handleResponsiveOptimizations();
+    optimizeForTouch();
+    setVH();
+    
+    // Atualizar no redimensionamento com debounce
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            handleResponsiveOptimizations();
+            setVH();
+        }, 250);
+    });
     
     function animateCounter(element) {
         const target = element.textContent;
@@ -345,7 +277,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 40);
     }
     
-    // Button hover effects
+    // Efeitos de hover dos botões
     const buttons = document.querySelectorAll('.btn');
     
     buttons.forEach(btn => {
@@ -359,7 +291,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        // Ripple effect
+        // Efeito ripple
         btn.addEventListener('click', function(e) {
             const ripple = document.createElement('span');
             const rect = this.getBoundingClientRect();
@@ -388,7 +320,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Add ripple animation CSS
+    // Adicionar CSS de animação ripple
     const rippleStyle = document.createElement('style');
     rippleStyle.textContent = `
         @keyframes ripple {
@@ -397,49 +329,57 @@ document.addEventListener('DOMContentLoaded', function() {
                 opacity: 0;
             }
         }
+        .btn {
+            position: relative;
+            overflow: hidden;
+        }
     `;
     document.head.appendChild(rippleStyle);
-
-    // WhatsApp button - simplified (no animations to prevent scroll issues)
     
-    // Testimonials slider (simple)
-    const testimonialCards = document.querySelectorAll('.testimonial-card');
+    // Botão WhatsApp - simplificado (sem animações para prevenir problemas de scroll)
+    
+    // Slider de depoimentos (simples)
+    const testimonials = document.querySelectorAll('.testimonial-card');
     let currentTestimonial = 0;
     
     function showTestimonial(index) {
-        testimonialCards.forEach((card, i) => {
-            card.style.opacity = i === index ? '1' : '0.6';
-            card.style.transform = i === index ? 'scale(1)' : 'scale(0.95)';
-        });
-    }
-    
-    // Auto-rotate testimonials
-    if (testimonialCards.length > 1) {
-        setInterval(() => {
-            currentTestimonial = (currentTestimonial + 1) % testimonialCards.length;
-            showTestimonial(currentTestimonial);
-        }, 4000);
-    }
-    
-    // Video play/pause on visibility
-    const video = document.querySelector('.hero-video video');
-    const videoObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                video.play();
+        testimonials.forEach((testimonial, i) => {
+            if (i === index) {
+                testimonial.style.opacity = '1';
+                testimonial.style.transform = 'translateX(0)';
             } else {
-                video.pause();
+                testimonial.style.opacity = '0.5';
+                testimonial.style.transform = 'translateX(20px)';
             }
         });
-    }, { threshold: 0.3 });
+    }
     
+    // Rotação automática de depoimentos
+    if (testimonials.length > 1) {
+        setInterval(() => {
+            currentTestimonial = (currentTestimonial + 1) % testimonials.length;
+            showTestimonial(currentTestimonial);
+        }, 5000);
+    }
+    
+    // Reproduzir/pausar vídeo na visibilidade
+    const video = document.querySelector('.hero-video video');
     if (video) {
+        const videoObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    video.play().catch(() => {});
+                } else {
+                    video.pause();
+                }
+            });
+        }, { threshold: 0.3 });
+        
         videoObserver.observe(video);
     }
     
-    // Smooth reveal for sections (disabled on mobile to prevent auto-scroll)
+    // Revelação suave para seções (desabilitado no mobile para prevenir auto-scroll)
     if (window.innerWidth > 768) {
-        const sections = document.querySelectorAll('section');
         const sectionObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -447,108 +387,122 @@ document.addEventListener('DOMContentLoaded', function() {
                     entry.target.style.transform = 'translateY(0)';
                 }
             });
-        }, { threshold: 0.1 });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        });
         
+        const sections = document.querySelectorAll('.features, .showcase, .testimonials, .cta');
         sections.forEach(section => {
             section.style.opacity = '0';
             section.style.transform = 'translateY(20px)';
-            section.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+            section.style.transition = 'all 0.8s ease';
             sectionObserver.observe(section);
         });
     } else {
-        // On mobile, just show all sections without animation
-        const sections = document.querySelectorAll('section');
+        // No mobile, apenas mostrar todas as seções sem animação
+        const sections = document.querySelectorAll('.features, .showcase, .testimonials, .cta');
         sections.forEach(section => {
             section.style.opacity = '1';
             section.style.transform = 'translateY(0)';
         });
     }
     
-    // Add loading animation
+    // Adicionar animação de carregamento
     const loader = document.createElement('div');
-    loader.id = 'loader';
+    loader.className = 'page-loader';
     loader.innerHTML = `
         <div class="loader-content">
             <div class="loader-logo">
-                <img src="assets/images/logo.png" alt="AutoFlow" style="width: 64px; height: 64px; border-radius: 12px;">
+                <img src="assets/images/logo.png" alt="AutoFlow" style="width: 60px; height: 60px;">
             </div>
-            <div class="loader-text">AutoFlow</div>
-            <div class="loader-spinner"></div>
+            <div class="loader-spinner">
+                <div class="spinner-ring"></div>
+                <div class="spinner-ring"></div>
+                <div class="spinner-ring"></div>
+            </div>
+            <div class="loader-text">Carregando AutoFlow...</div>
         </div>
     `;
     
     const loaderStyle = document.createElement('style');
     loaderStyle.textContent = `
-        #loader {
+        .page-loader {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: var(--primary-bg);
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 9999;
-            transition: opacity 0.5s ease;
+            z-index: 10000;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
         }
         
         .loader-content {
             text-align: center;
+            animation: fadeInUp 0.8s ease;
         }
         
         .loader-logo {
-            margin-bottom: 16px;
+            margin-bottom: 1rem;
             animation: float 2s ease-in-out infinite;
         }
         
-        .loader-text {
-            font-size: 24px;
-            font-weight: 700;
-            background: var(--gradient-primary);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 24px;
+        .loader-spinner {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1rem;
         }
         
-        .loader-spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid var(--border-color);
-            border-top-color: var(--accent-green);
+        .spinner-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 3px solid transparent;
+            border-top: 3px solid #4CAF50;
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin: 0 auto;
+        }
+        
+        .spinner-ring:nth-child(2) {
+            animation-delay: 0.1s;
+            border-top-color: #E63946;
+        }
+        
+        .spinner-ring:nth-child(3) {
+            animation-delay: 0.2s;
+            border-top-color: #1E56A0;
+        }
+        
+        .loader-text {
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: 500;
         }
         
         @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-        
-        @keyframes float {
-            0%, 100% {
-                transform: translateY(0);
-            }
-            50% {
-                transform: translateY(-10px);
-            }
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     `;
     
     document.head.appendChild(loaderStyle);
     document.body.appendChild(loader);
     
-    // Hide loader after page load
+    // Ocultar loader após carregamento da página
     window.addEventListener('load', () => {
         setTimeout(() => {
             loader.style.opacity = '0';
+            loader.style.visibility = 'hidden';
             setTimeout(() => {
                 loader.remove();
+                loaderStyle.remove();
             }, 500);
-        }, 1000);
+        }, 500);
     });
     
     // Enhanced form interactions (if forms are added later)
